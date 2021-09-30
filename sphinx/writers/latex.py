@@ -808,6 +808,8 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
         self.body.append('}{')
+        # Reset values to prevent reuse
+        self.first_param = 0
 
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:

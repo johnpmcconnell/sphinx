@@ -101,6 +101,8 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         for label, translation in admonitionlabels.items():
             self.language.labels[label] = self.deunicode(translation)
 
+        self.first_param = 0
+
     # overwritten -- added quotes around all .TH arguments
     def header(self) -> str:
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
@@ -187,6 +189,8 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
+        # Reset values to prevent reuse
+        self.first_param = 0
 
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:

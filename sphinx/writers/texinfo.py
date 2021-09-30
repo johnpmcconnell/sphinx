@@ -190,6 +190,8 @@ class TexinfoTranslator(SphinxTranslator):
         self.handled_abbrs: Set[str] = set()
         self.colwidths: List[int] = None
 
+        self.first_param = 0
+
     def finish(self) -> None:
         if self.previous_section is None:
             self.add_menu('Top')
@@ -1462,6 +1464,8 @@ class TexinfoTranslator(SphinxTranslator):
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
+        # Reset values to prevent reuse
+        self.first_param = 0
 
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:

@@ -61,6 +61,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
         self.secnumber_suffix = self.config.html_secnumber_suffix
+        self.first_param = 0
         self.param_separator = ''
         self.optional_param_level = 0
         self._table_row_indices = [0]
@@ -160,6 +161,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">)</span>')
+        # Reset values to prevent reuse
+        self.first_param = 0
+        self.optional_param_level = 0
+        self.required_params_left = 0
+        self.param_separator = ''
 
     # If required parameters are still to come, then put the comma after
     # the parameter.  Otherwise, put the comma before.  This ensures that

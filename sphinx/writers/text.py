@@ -394,6 +394,8 @@ class TextTranslator(SphinxTranslator):
         self.lineblocklevel = 0
         self.table: Table = None
 
+        self.first_param = 0
+
     def add_text(self, text: str) -> None:
         self.states[-1].append((-1, text))
 
@@ -599,6 +601,8 @@ class TextTranslator(SphinxTranslator):
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.add_text(')')
+        # Reset values to prevent reuse
+        self.first_param = 0
 
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
