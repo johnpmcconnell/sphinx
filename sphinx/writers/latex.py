@@ -296,6 +296,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.literal_whitespace = 0
         self.in_parsed_literal = 0
         self.compact_list = 0
+        self.in_paramlist = 0
         self.first_param = 0
         self.in_desc_signature = False
 
@@ -803,19 +804,22 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_desc_parameterlist(self, node: Element) -> None:
         # close name, open parameterlist
         self.body.append('}{')
+        self.in_paramlist = 1
         self.first_param = 1
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
         self.body.append('}{')
         # Reset values to prevent reuse
+        self.in_paramlist = 0
         self.first_param = 0
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param:
-            self.body.append(', ')
-        else:
-            self.first_param = 0
+        if self.in_paramlist:
+            if not self.first_param:
+                self.body.append(', ')
+            else:
+                self.first_param = 0
         if not node.hasattr('noemph'):
             self.body.append(r'\emph{')
 

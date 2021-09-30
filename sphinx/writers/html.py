@@ -82,6 +82,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
         self.secnumber_suffix = self.config.html_secnumber_suffix
+        self.in_paramlist = 0
         self.first_param = 0
         self.param_separator = ''
         self.optional_param_level = 0
@@ -172,6 +173,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.body.append('</span></span>')
 
     def visit_desc_parameterlist(self, node: Element) -> None:
+        self.in_paramlist = 1
         self.body.append('<span class="sig-paren">(</span>')
         self.first_param = 1
         self.optional_param_level = 0
@@ -183,6 +185,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append('<span class="sig-paren">)</span>')
         # Reset values to prevent reuse
+        self.in_paramlist = 0
         self.first_param = 0
         self.optional_param_level = 0
         self.required_params_left = 0
@@ -195,19 +198,20 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     #     foo([a, ]b, c[, d])
     #
     def visit_desc_parameter(self, node: Element) -> None:
-        if self.first_param:
-            self.first_param = 0
-        elif not self.required_params_left:
-            self.body.append(self.param_separator)
-        if self.optional_param_level == 0:
-            self.required_params_left -= 1
+        if self.in_paramlist:
+            if self.first_param:
+                self.first_param = 0
+            elif not self.required_params_left:
+                self.body.append(self.param_separator)
+            if self.optional_param_level == 0:
+                self.required_params_left -= 1
         if not node.hasattr('noemph'):
             self.body.append('<em>')
 
     def depart_desc_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
             self.body.append('</em>')
-        if self.required_params_left:
+        if self.in_paramlist and self.required_params_left:
             self.body.append(self.param_separator)
 
     def visit_desc_optional(self, node: Element) -> None:

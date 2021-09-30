@@ -190,6 +190,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.handled_abbrs: Set[str] = set()
         self.colwidths: List[int] = None
 
+        self.in_paramlist = 0
         self.first_param = 0
 
     def finish(self) -> None:
@@ -1460,18 +1461,21 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.body.append(' (')
+        self.in_paramlist = 1
         self.first_param = 1
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
         # Reset values to prevent reuse
+        self.in_paramlist = 0
         self.first_param = 0
 
     def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param:
-            self.body.append(', ')
-        else:
-            self.first_param = 0
+        if self.in_paramlist:
+            if not self.first_param:
+                self.body.append(', ')
+            else:
+                self.first_param = 0
         text = self.escape(node.astext())
         # replace no-break spaces with normal ones
         text = text.replace(' ', '@w{ }')
